@@ -17,4 +17,4 @@ export const FeedbackProvider = ({children}) => {
   </FeedbackConext.Provider>
 }
 
-export default FeedbackProvider
+export default FeedbackConext

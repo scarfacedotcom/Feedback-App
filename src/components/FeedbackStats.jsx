@@ -1,6 +1,8 @@
-import PropTypes from 'prop-types'
+import { useContext } from 'react'
+import FeedbackConext from '../context/FeedbackContext'
 
-function FeedbackStats({feedback}) {
+function FeedbackStats() {
+  const {feedback} = useContext(FeedbackConext)
 
   let average = feedback.reduce((acc,cur) => {
     return acc + cur.rating
@@ -14,9 +16,5 @@ function FeedbackStats({feedback}) {
       <h4>Average Rating: {isNaN(average) ? 0 : average }</h4>
     </div>
   )
-}
-
-FeedbackStats.prototype = {
-  feedback: PropTypes.array.isRequired,
 }
 export default FeedbackStats
