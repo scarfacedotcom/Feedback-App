@@ -2,16 +2,17 @@ import {motion, AnimatePresence} from 'framer-motion'
 import FeedbackItem from "./FeedbackItem"
 import { useContext } from 'react'
 import FeedbackConext from '../context/FeedbackContext'
+import Spinner from './shared/Spinner'
 
 export default function FeedbackList() {
-  const {feedback} = useContext(FeedbackConext)
+  const {feedback, isLoading} = useContext(FeedbackConext)
 
-  if (!feedback || feedback.length === 0 ) {
+  if (!isLoading && (!feedback || feedback.length === 0) ) {
     return <p>Opps! No Feedback yet</p>
   }
 
-    return (
-      <div className="feedback-list">
+  return isLoading ? <Spinner /> : (
+    <div className="feedback-list">
         <AnimatePresence>
           {feedback.map((item) => (
             <motion.div
@@ -26,16 +27,6 @@ export default function FeedbackList() {
           ))}
         </AnimatePresence>
       </div>
-    )
-
-  // return (
-  //   <div className="feedback-list">
-  //     {feedback.map((item) => (
-  //       <FeedbackItem key={item.id} item={item} 
-  //       handleDelete = {handleDelete}
-  //       />
-  //     ))}
-  //   </div>
-  // )
+  )
 }
 

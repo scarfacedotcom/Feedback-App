@@ -1,14 +1,14 @@
 import { createContext, useState, useEffect } from "react";
-import { v4 as uuidv4 } from 'uuid'
 
 
 const FeedbackConext = createContext()
 
 export const FeedbackProvider = ({children}) => {
+  const [isLoading, setIsLoading] = useState(false)
   const [feedback, setFeedback] = useState([])
   const [feedbackEdit, setFeedbackEdit] = useState({
     item: {},
-    edit: false
+    edit: false,
   })
 
   useEffect(() => {
@@ -16,21 +16,50 @@ export const FeedbackProvider = ({children}) => {
   }, [])
 
   const fetchFeedback = async () => {
-    const response = await fetch (`http://localhost:5000/feedback?_sort=id&_order=desc`)
+    const response = await fetch (`/feedback?_sort=id&_order=desc`)
     const data = await response.json()
-    
+
     setFeedback(data)
+    setIsLoading(false)
+  }
+  
+  
+   // Add feedback
+   const addFeedback = async (newFeedback) => {
+    const response = await fetch('/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newFeedback),
+    })
+
+    const data = await response.json()
+
+    setFeedback([data, ...feedback])
   }
 
-  const deleteFeedback = (id) => {
+  const deleteFeedback = async (id) => {
     if (window.confirm('Opps! Are you sure that you want to delete?')) {
+      await fetch (`/feedback/${id}`, { method: 'DELETE' })
+
       setFeedback(feedback.filter((item) => item.id !== id ))
     }
   }
 
-  const updateFeedback = (id, updItem) => {
+  const updateFeedback = async (id, updItem) => {
+    const response = await fetch (`/feedback/$(id)`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updItem)
+    })
+
+    const data = await response.json()
+
     setFeedback(
-      feedback.map((item) => (item.id === id ? { ...item, ...updItem } : item ))
+      feedback.map((item) => (item.id === id ? { ...item, ...data } : item ))
     )
   }
 
@@ -40,12 +69,6 @@ export const FeedbackProvider = ({children}) => {
       edit: true
     })
   }
-  
-  const addFeedback = (newFeedback) => {
-    newFeedback.id = uuidv4()
-    setFeedback([newFeedback, ...feedback])
-  }
-
 
   return <FeedbackConext.Provider value={{
     feedback,
@@ -54,6 +77,7 @@ export const FeedbackProvider = ({children}) => {
     editFeedback,
     feedbackEdit,
     updateFeedback,
+    isLoading,
   }} >
     {children}
   </FeedbackConext.Provider>
